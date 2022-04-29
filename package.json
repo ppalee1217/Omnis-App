@@ -1,0 +1,41 @@
+{
+  "name": "omnis",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "expo start --dev-client",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "eject": "expo eject"
+  },
+  "dependencies": {
+    "@expo-google-fonts/dev": "^0.2.2",
+    "@fortawesome/free-solid-svg-icons": "^6.1.1",
+    "@fortawesome/react-native-fontawesome": "^0.2.7",
+    "@gorhom/bottom-sheet": "^4.1.5",
+    "expo": "~44.0.0",
+    "expo-font": "~10.0.4",
+    "expo-splash-screen": "~0.14.1",
+    "expo-status-bar": "~1.2.0",
+    "react": "17.0.1",
+    "react-dom": "17.0.1",
+    "react-native": "0.64.3",
+    "react-native-floating-action-menu": "^1.2.4",
+    "react-native-gesture-handler": "~2.1.0",
+    "react-native-maps": "^0.29.4",
+    "react-native-reanimated": "~2.3.1",
+    "react-native-tab-navigator": "^0.3.4",
+    "react-native-web": "0.17.1",
+    "recharts": "^2.1.9",
+    "rn-bottom-drawer": "^1.4.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.9"
+  },
+  "rnpm": {
+    "assets": [
+      "./assets/fonts/"
+    ]
+  },
+  "private": true
+}
