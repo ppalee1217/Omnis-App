@@ -1,12 +1,14 @@
-import React, { Component } from 'react';
-import HomePage from './js/pages/HomaPage';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import React, { Component } from "react";
+import Navigation from "./src/navigation/navigation";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { NavigationContainer } from '@react-navigation/native';
 
 export default function App() {
-    return (
-      <GestureHandlerRootView style={{ flex: 1 }}>{
-        <HomePage/>
-        }
+  return (
+    <NavigationContainer>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        {<Navigation />}
       </GestureHandlerRootView>
-    );
+    </NavigationContainer>
+  );
 }
