@@ -28,12 +28,12 @@ import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { FloatingMenu } from "react-native-floating-action-menu";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
+import DailyList from "../components/DailyList";
 import DailyRecord from "../components/DailyRecord";
 import Chart from "../components/Chart";
 import RelatedPage from "./RelatedPage";
 import RoundIcon from "../components/RoundIcon";
 import SpeedIcon from "../components/SpeedIcon";
-import BackgroundTimer from "react-native-background-timer";
 import LinearGradient from "react-native-linear-gradient";
 import {
   useFonts,
@@ -43,21 +43,34 @@ import {
 } from "@expo-google-fonts/dev";
 
 export default function HomePage({ navigation }) {
-  let fontsLoaded = useFonts({
+  let [fontsLoaded] = useFonts({
     Rubik_500Medium,
     Rubik_600SemiBold,
     Orbitron_600SemiBold,
     "digital-7": require("../../assets/fonts/digital-7.ttf"),
   });
-  const [selectedTab, setSelected] = useState("trending");
+  const [positionLong, setPositionLong] = useState(0);
+  const [positionLati, setPositionLati] = useState(0);
+  const [selectedTab, setSelected] = useState("my");
   const [pass, Changepass] = useState("");
   const [TabBarHeight, setBarHeight] = useState(60);
   const [isMenuOpen, setMenuOpen] = useState(false);
   const bottomSheetRef = useRef(null);
   const [barBackgroundColor, setBarBackgroundColor] = useState(
-    "rgba(40, 192, 217, 0.4)"
+    "#fff"
   );
-
+  const [courseData,setCourseData] = useState(0);
+  const [oldspeed, setOldSpeed] = useState(0);
+  const [CO2_Data, setCo2Data] = useState([]);
+  const [RPM_Data, setRPMData] = useState([]);
+  const [old_CS_Data, setOldCSData] = useState([]);
+  const [Current_Speed_Data, setCSData] = useState([]);
+  const [old_WS_Data, setOldWSData] = useState([]);
+  const [Wind_Speed_Data, setWSData] = useState([]);
+  const [futureCordinates, setFutureCordinates] = useState([]);
+  const [historyCordinates, setHistoryCordinates] = useState([]);
+  const [speed, setSpeed] = useState(0);
+  const [daily, setDaily] = useState([]);
   const items = [
     {
       label: "碳排計算",
@@ -96,164 +109,29 @@ export default function HomePage({ navigation }) {
     require("../../res/images/RightArrow.png"),
     require("../../res/images/DownArrow.png"),
   ];
-
-  const OmnisEverLogicDate = require("../../res/data/calculated/Omnis_EVERLOGIC.json");
+  const OmnisEverLogicData = require("../../res/data/calculated/Omnis_EVERLOGIC.json");
   const EverLogicData = require("../../res/data/EVER_LOGIC.json");
-  let newPosition = {};
-  let newSpeedandDir = {};
-  let calNum = 1;
+  //setting date
+  let _date = new Date("June 2 2022 06:15:30");
+  let calNum = 0;
   let passHour = 0;
   let counter = 0;
-  const historyCordinates = [];
-  const futureCordinates = [];
-
-  for (let i = 1; i < EverLogicData.length; i++) {
-    const position = {
-      latitude: EverLogicData[i].Latitude,
-      longitude: EverLogicData[i].Longitude,
-    };
-    futureCordinates.push(position);
-    // if (i <= EverLogicData.length / 4) {
-    //   historyCordinates.push(position);
-    // }
-    // if(i==EverLogicData.length/4){
-    //   newPosition = position;
-    //   newSpeedandDir ={
-    //     speed:EverLogicData[i].Speed,
-    //     course:EverLogicData[i].Course,
-    //   }
-    // }
-  }
-
-  const timeoutId = BackgroundTimer.setTimeout(() => {
-    // this will be executed once after 10 seconds
-    // even when app is the the background
-    counter++;
-    console.log(counter);
-  }, 1000);
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     counter++;
-  // if (calNum == 1 && counter == 1) {
-  //   const position = {
-  //     latitude: OmnisEverLogicDate[0].Latitude,
-  //     longitude: OmnisEverLogicDate[0].Longitude,
-  //   };
-  //   futureCordinates.unshift(position);
-  //   historyCordinates.push(position);
-  //   newPosition = position;
-  //   newSpeedandDir.speed = OmnisEverLogicDate[0].speed;
-  //   CO2_Data.push({
-  //     value: OmnisEverLogicDate[0].CO2,
-  //     date: new Date().toLocaleString(),
-  //   });
-  //   RPM_Data.push({
-  //     value: OmnisEverLogicDate[0].RPM,
-  //     date: new Date().toLocaleString(),
-  //   });
-  //   Current_Speed_Data.push({
-  //     value: OmnisEverLogicDate[0].Current_Speed,
-  //     date: new Date().toLocaleString(),
-  //   });
-  //   Wind_Speed_Data.push({
-  //     value: OmnisEverLogicDate[0].Wind_Speed,
-  //     date: new Date().toLocaleString(),
-  //   });
-  // } else if (
-  //   OmnisEverLogicDate[calNum + 1].time - OmnisEverLogicDate[calNum].time <=
-  //   counter
-  // ) {
-  //   calNum++;
-  //   const position = {
-  //     latitude: OmnisEverLogicDate[calNum].Latitude,
-  //     longitude: OmnisEverLogicDate[calNum].Longitude,
-  //   };
-  //   if (counter / 3600 >= passHour) {
-  //     passHour++;
-  //     futureCordinates.pop();
-  //   }
-  //   futureCordinates.unshift(position);
-  //   historyCordinates.push(position);
-  //   newPosition = position;
-  //   newSpeedandDir.speed = OmnisEverLogicDate[calNum].speed;
-  //   CO2_Data.push({
-  //     value: OmnisEverLogicDate[calNum].CO2,
-  //     date: new Date().toLocaleString(),
-  //   });
-  //   RPM_Data.push({
-  //     value: OmnisEverLogicDate[calNum].RPM,
-  //     date: new Date().toLocaleString(),
-  //   });
-  //   Current_Speed_Data.push({
-  //     value: OmnisEverLogicDate[calNum].Current_Speed,
-  //     date: new Date().toLocaleString(),
-  //   });
-  //   Wind_Speed_Data.push({
-  //     value: OmnisEverLogicDate[calNum].Wind_Speed,
-  //     date: new Date().toLocaleString(),
-  //   });
-  // }
-  //   }, 1000);
-  // });
-
-  const daily = [
-    {
-      date: "06/10",
-      percent: 0.033,
-      co2: "2.45kg",
-    },
-    {
-      date: "06/09",
-      percent: -0.023,
-      co2: "2.45kg",
-    },
-    {
-      date: "06/08",
-      percent: -0.006,
-      co2: "2.45kg",
-    },
-    {
-      date: "06/07",
-      percent: 0.033,
-      co2: "2.45kg",
-    },
-    {
-      date: "06/06",
-      percent: 0.37,
-      co2: "2.45kg",
-    },
-    {
-      date: "06/05",
-      percent: 0.01,
-      co2: "2.45kg",
-    },
-    {
-      date: "06/04",
-      percent: 0.038,
-      co2: "2.45kg",
-    },
-    {
-      date: "06/03",
-      percent: 0.03,
-      co2: "2.45kg",
-    },
-  ];
-
-  const CO2_Data = [
-    // { value: 120, date: "9 Apr 2022" },
-    // {
-    //   value: 240,
-    //   date: "10 Apr 2022",
-    //   label: "10 Apr",
-    //   labelTextStyle: { color: "#99d6e0", fontWeight: "bold", width: 50 },
-    // },
-  ];
-
-  const RPM_Data = [];
-
-  const Current_Speed_Data = [];
-
-  const Wind_Speed_Data = [];
+  let co2_tmp = [];
+  let rpm_tmp = [];
+  let old_cs_tmp = [];
+  let cs_tmp = [];
+  let old_ws_tmp = [];
+  let ws_tmp = [];
+  let FCtmp = [];
+  let HCtmp = [];
+  let dailytmp = [];
+  let yesterDayPosition = {};
+  let yesterDayco2 = 0;
+  let toDayco2 = 0;
+  const todayRPM = [];
+  let windSpeed = 0;
+  let waveHieght = 0;
+  let AWT = 0;
 
   useEffect(() => {
     if (pass == "碳排計算") {
@@ -268,7 +146,293 @@ export default function HomePage({ navigation }) {
     }
   }, [isMenuOpen]);
 
-  handleItemPress = (item, index) => {
+  for (let i = 1; i < EverLogicData.length; i++) {
+    const position = {
+      latitude: EverLogicData[i].Latitude,
+      longitude: EverLogicData[i].Longitude,
+    };
+    FCtmp.push(position);
+  }
+  const changeCo2Data = (changeDay, newData, day) => {
+    //new part
+    let _co2 = [...co2_tmp];
+    if (changeDay) {
+      _co2.push({
+        value: newData.toFixed(1),
+        date: day.toLocaleTimeString(),
+        label: (day.getMonth() + 1 + "/" + day.getDate()).toString(),
+        labelTextStyle: { color: "#99d6e0", fontWeight: "bold", width: 100 },
+      });
+    } else {
+      _co2.push({ value: newData.toFixed(1), date: day.toLocaleTimeString() });
+    }
+    setCo2Data(_co2);
+    co2_tmp = _co2;
+  };
+
+  const changeRPMData = (changeDay, newData, day) => {
+    //new part
+    let _rpm = [...rpm_tmp];
+    if (changeDay) {
+      _rpm.push({
+        value: newData.toFixed(1),
+        date: day.toLocaleTimeString(),
+        label: (day.getMonth() + 1 + "/" + day.getDate()).toString(),
+        labelTextStyle: { color: "#99d6e0", fontWeight: "bold", width: 100 },
+      });
+    } else {
+      _rpm.push({ value: newData.toFixed(1), date: day.toLocaleTimeString() });
+    }
+    setRPMData(_rpm);
+    rpm_tmp = _rpm;
+  };
+
+  const changeWSData = (changeDay, newData, oldData, day) => {
+    //new part
+    let _ws = [...ws_tmp];
+    if (changeDay) {
+      _ws.push({
+        value: newData.toFixed(1),
+        date: day.toLocaleTimeString(),
+        label: (day.getMonth() + 1 + "/" + day.getDate()).toString(),
+        labelTextStyle: { color: "#99d6e0", fontWeight: "bold", width: 100 },
+      });
+    } else {
+      _ws.push({ value: newData.toFixed(1), date: day.toLocaleTimeString() });
+    }
+    setWSData(_ws);
+    ws_tmp = _ws;
+    //old part
+    // let _old_ws = [...old_ws_tmp];
+    // _old_ws.push({ value: oldData.toFixed(1), date: day.toLocaleTimeString() });
+    // setOldWSData(_old_ws);
+    // old_ws_tmp = _old_ws;
+  };
+
+  const changeCSData = (changeDay, newData, oldData, day) => {
+    //new part
+    let _cs = [...cs_tmp];
+    if (changeDay) {
+      _cs.push({
+        value: newData.toFixed(1),
+        date: day.toLocaleTimeString(),
+        label: (day.getMonth() + 1 + "/" + day.getDate()).toString(),
+        labelTextStyle: { color: "#99d6e0", fontWeight: "bold", width: 100 },
+      });
+    } else {
+      _cs.push({ value: newData.toFixed(1), date: day.toLocaleTimeString() });
+    }
+    setCSData(_cs);
+    cs_tmp = _cs;
+    //old part
+    // let _old_cs = [...old_cs_tmp];
+    // _old_cs.push({ value: oldData.toFixed(1), date: day.toLocaleTimeString() });
+    // setOldCSData(_old_cs);
+    // old_cs_tmp = _old_cs;
+  };
+
+  // const changeCourse = (course) => {
+  //   setCourseDa(course);
+  // };
+
+  const changeSpeed = (speed) => {
+    setSpeed(speed);
+  };
+
+  const changePosition = (position) => {
+    setPositionLati(position.latitude);
+    setPositionLong(position.longitude);
+    //console.log(`${positionLati}, ${positionLong}`);
+  };
+
+  const changeFutureCordinates = (position) => {
+    let FC = [...FCtmp];
+    let remove = FC.shift();
+    FC.unshift(position);
+    setFutureCordinates(FC);
+    FCtmp = FC;
+    // console.log(`移除: ${remove.latitude}, ${remove.longitude}`);
+    // console.log(`加入: ${position.latitude}, ${position.longitude}`);
+    // console.log(FC)
+  };
+
+  const changeFutureCordinatesHour = () => {
+    let FC = [...FCtmp];
+    FC.shift();
+    setFutureCordinates(FC);
+    FCtmp = FC;
+  };
+
+  const changeHistoryCordinates = (position) => {
+    let HC = [...HCtmp];
+    HC.push(position);
+    setHistoryCordinates(HC);
+    HCtmp = HC;
+    //console.log(`加入: ${position.latitude}, ${position.longitude}`);
+    //console.log(HC);
+  };
+
+  // const data = {
+  //   date: (_date.getMonth() + 1 + "/" + _date.getDate()).toString(),
+  //   yesterDayPosition: yesterDayPosition,
+  //   nowPosition: position,
+  //   co2: yesterDayco2,
+  //   rpm: todayRPM,
+
+  //   AWH: waveHieght,
+  //   wind: windSpeed,
+  //   AWT: AWT,
+  // };
+
+  // const addDailyRecord = (data) => {
+  //   let dailyTmp = [...dailytmp];
+  //   dailyTmp.push(data);
+  //   setDaily(dailyTmp);
+  //   dailytmp = dailyTmp;
+  // };
+
+  const _dailytmp = [
+    {
+      date: "06/02",
+      percent: 0.03,
+      co2: "22464t",
+      yesterDayPosition:{
+        latitude: 22.32706,
+        longitude: 114.1327,
+      },
+      nowPosition:{
+        latitude: 21.75256,
+        longitude: 118.6125,
+      },
+      rpm:[11.24,11.34],
+      wind:15,
+      AWH:0.7,
+      AWT:27,
+    },
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      counter++;
+      if (calNum == 0) {
+        //console.log(OmnisEverLogicData[0]);
+        //console.log(EverLogicData[0]);
+        calNum++;
+        passHour++;
+        const position = {
+          latitude: OmnisEverLogicData[0].latitude,
+          longitude: OmnisEverLogicData[0].longitude,
+        };
+
+        yesterDayPosition = {
+          latitude: OmnisEverLogicData[0].latitude,
+          longitude: OmnisEverLogicData[0].longitude,
+        };
+        toDayco2 = OmnisEverLogicData[0].CO2;
+        todayRPM.push(OmnisEverLogicData[0].RPM);
+        windSpeed = OmnisEverLogicData[0].WindSpeed;
+        waveHieght = OmnisEverLogicData[0].WaveHeight;
+        AWT = OmnisEverLogicData[0].WindTemp;
+        setOldSpeed(OmnisEverLogicData[0].HistorySpeed);
+        setCourseData(OmnisEverLogicData[0].HistoryCourse);
+        changePosition(position);
+        changeHistoryCordinates(position);
+        //changeCourse(OmnisEverLogicData[0].course);
+        changeSpeed(OmnisEverLogicData[0].speed);
+        changeFutureCordinates(position);
+        changeCo2Data(true, OmnisEverLogicData[0].CO2, _date);
+        changeRPMData(true, OmnisEverLogicData[0].RPM, _date);
+        changeCSData(
+          true,
+          Math.abs(OmnisEverLogicData[0].Current_Speed),
+          Math.abs(EverLogicData[0].CurrentSpeed),
+          _date
+        );
+        changeWSData(
+          true,
+          Math.abs(OmnisEverLogicData[0].Wind_Speed),
+          Math.abs(EverLogicData[0].WindSpeed),
+          _date
+        );
+      } else if (OmnisEverLogicData[calNum].time <= counter) {
+        calNum++;
+        const position = {
+          latitude: OmnisEverLogicData[calNum].latitude,
+          longitude: OmnisEverLogicData[calNum].longitude,
+        };
+        if (counter / 3600 >= passHour) {
+          let changeDay = false;
+          passHour++;
+          let nowHour = _date.getHours();
+          _date.setHours(nowHour + 1);
+          if (_date.getHours() == 1) {
+            _date.setDate(_date.getDate() + 1);
+            changeDay = true;
+            if (_date.getDate() == 1) {
+              _date.setMonth(_date.getMonth() + 1);
+              if (_date.getMonth() == 1) {
+                _date.setFullYear(_date.getFullYear() + 1);
+              }
+            }
+          }
+          toDayco2 += OmnisEverLogicData[calNum].CO2;
+          todayRPM.push(OmnisEverLogicData[calNum].RPM);
+
+          changeCo2Data(changeDay, OmnisEverLogicData[calNum].CO2, _date);
+          changeRPMData(changeDay, OmnisEverLogicData[calNum].RPM, _date);
+          changeCSData(
+            changeDay,
+            Math.abs(OmnisEverLogicData[calNum].Current_Speed),
+            Math.abs(EverLogicData[passHour].CurrentSpeed),
+            _date
+          );
+          changeWSData(
+            changeDay,
+            Math.abs(OmnisEverLogicData[0].Wind_Speed),
+            Math.abs(EverLogicData[0].WindSpeed),
+            _date
+          );
+
+          if (changeDay) {
+            windSpeed = OmnisEverLogicData[calNum].WindSpeed;
+            waveHieght = OmnisEverLogicData[calNum].WaveHeight;
+            AWT = OmnisEverLogicData[calNum].WindTemp;
+
+            const data = {
+              date: (_date.getMonth() + 1 + "/" + _date.getDate()).toString(),
+              yesterDayPosition: yesterDayPosition,
+              nowPosition: position,
+              yesterDayco2: yesterDayco2,
+              toDayco2: toDayco2,
+              rpm: todayRPM,
+
+              AWH: waveHieght,
+              wind: windSpeed,
+              AWT: AWT,
+            };
+            addDailyRecord(data);
+            yesterDayPosition = position;
+            yesterDayco2 = toDayco2;
+            toDayco2 = OmnisEverLogicData[calNum].CO2;
+            todayRPM.length = 0;
+          }
+          changeFutureCordinatesHour();
+        }
+        setOldSpeed(OmnisEverLogicData[calNum].HistorySpeed);
+        setCourseData(OmnisEverLogicData[calNum].HistoryCourse);
+        changePosition(position);
+        changeHistoryCordinates(position);
+        changeSpeed(OmnisEverLogicData[calNum].speed);
+        changeFutureCordinates(position);
+      }
+      //console.log(`time: ${counter}`);
+      //console.log(`目前使用參數編號: ${calNum}`);
+      //console.log(`1.目前位置: ${positionLati}, ${positionLong}`);
+    }, 1);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleItemPress = (item, index) => {
     if (item.label == "碳排計算") {
       Changepass("碳排計算");
       ChangeMenuOpen();
@@ -281,7 +445,7 @@ export default function HomePage({ navigation }) {
     }
   };
 
-  MenuIcon = (menuState) => {
+  const MenuIcon = (menuState) => {
     return isMenuOpen ? (
       <FontAwesomeIcon icon={faTimes} size={25} color={"#63B8FF"} />
     ) : (
@@ -289,7 +453,7 @@ export default function HomePage({ navigation }) {
     );
   };
 
-  ItemIcon = (item, index, menuState) => {
+  const ItemIcon = (item, index, menuState) => {
     // Icons can be rendered however you like.
     // Here are some examples, using data from the item object:
     const { itemsDown, dimmerActive } = menuState;
@@ -388,8 +552,8 @@ export default function HomePage({ navigation }) {
                 <MapView
                   style={styles.map}
                   initialRegion={{
-                    latitude: newPosition.latitude,
-                    longitude: newPosition.longitude,
+                    latitude: positionLati,
+                    longitude: positionLong,
                     latitudeDelta: 0.0922,
                     longitudeDelta: 0.0421,
                   }}
@@ -398,12 +562,12 @@ export default function HomePage({ navigation }) {
                   <Polyline
                     coordinates={historyCordinates}
                     strokeColor="#4A5DA6"
-                    strokeWidth={4}
+                    strokeWidth={5}
                   />
                   <Marker
                     coordinate={{
-                      latitude: newPosition.latitude,
-                      longitude: newPosition.longitude,
+                      latitude: positionLati,
+                      longitude: positionLong,
                     }}
                     style={{ width: 50, height: 50 }}
                   >
@@ -428,7 +592,7 @@ export default function HomePage({ navigation }) {
                   <Polyline
                     coordinates={futureCordinates}
                     strokeColor="#fff"
-                    strokeWidth={4}
+                    strokeWidth={3}
                     lineCap="square"
                     lineDashPattern={[50, 30]}
                   />
@@ -449,16 +613,12 @@ export default function HomePage({ navigation }) {
                     onItemPress={handleItemPress}
                   />
                   <View style={[styles.container, { top: "7%" }]}>
-                    <RoundIcon
-                      num={newSpeedandDir.course}
-                      text={"COURSE"}
-                      img={arrowImage}
-                    />
+                    <RoundIcon num={courseData} text={"COURSE"} img={arrowImage} />
                     <Text style={styles.courseText}>COURSE</Text>
                   </View>
                   <View style={[styles.container, { bottom: "5%" }]}>
                     <RoundIcon
-                      num={newSpeedandDir.speed}
+                      num={oldspeed.toFixed(1)}
                       text={"當前航速"}
                       img={null}
                     />
@@ -487,9 +647,7 @@ export default function HomePage({ navigation }) {
                         <Text style={styles.currentSpeedText}>當前航速</Text>
                         <View style={styles.digitalDisplayContainer}>
                           <View style={styles.digitalDisplay}>
-                            <Text style={styles.displayNumber}>
-                              {newSpeedandDir.speed}
-                            </Text>
+                            <Text style={styles.displayNumber}>{oldspeed}</Text>
                           </View>
                           <Text style={styles.currentSpeedText}>Knots</Text>
                         </View>
@@ -498,7 +656,9 @@ export default function HomePage({ navigation }) {
                         <Text style={styles.changeSpeedText}>航速維持</Text>
                         <View style={styles.digitalDisplayContainerDown}>
                           <View style={styles.digitalDisplay}>
-                            <Text style={styles.displayNumber}>42</Text>
+                            <Text style={styles.displayNumber}>
+                              {speed.toFixed(2)}
+                            </Text>
                           </View>
                           <Text style={styles.changeSpeedText}>Knots</Text>
                         </View>
@@ -543,12 +703,7 @@ export default function HomePage({ navigation }) {
                       top: 5,
                     }}
                   >
-                    <Chart
-                      data={CO2_Data}
-                      //predict={ptDataPredict}
-                      color={"red"}
-                      max={250}
-                    />
+                    <Chart data={CO2_Data} color={"red"} max={2000} />
                   </View>
                 </View>
                 <View style={styles.tempChartContainer}>
@@ -564,12 +719,7 @@ export default function HomePage({ navigation }) {
                       top: 20,
                     }}
                   >
-                    <Chart
-                      data={RPM_Data}
-                      //predict={ptDataPredict}
-                      color={"#4A5DA6"}
-                      max={100}
-                    />
+                    <Chart data={RPM_Data} color={"#4A5DA6"} max={20} />
                   </View>
                 </View>
                 <View style={styles.tempChartContainer}>
@@ -590,8 +740,10 @@ export default function HomePage({ navigation }) {
                   >
                     <Chart
                       data={Current_Speed_Data}
+                      data2={old_CS_Data}
                       color={"#4A5DA6"}
-                      max={500}
+                      color2={"gray"}
+                      max={5}
                     />
                   </View>
                 </View>
@@ -611,7 +763,13 @@ export default function HomePage({ navigation }) {
                       top: 50,
                     }}
                   >
-                    <Chart data={Wind_Speed_Data} color={"#4A5DA6"} max={350} />
+                    <Chart
+                      data={Wind_Speed_Data}
+                      data2={old_WS_Data}
+                      color={"#4A5DA6"}
+                      color2={"gray"}
+                      max={10}
+                    />
                   </View>
                 </View>
               </View>
@@ -637,16 +795,11 @@ export default function HomePage({ navigation }) {
             onPress={changeTabToFavorite}
           >
             <View style={{ flex: 1 }}>
-              <View style={{ marginTop: 50 }}></View>
-              <ScrollView>
-                <DailyRecord num={0} data={daily} positive={true} />
-                <DailyRecord num={1} data={daily} positive={false} />
-                <DailyRecord num={2} data={daily} positive={false} />
-                <DailyRecord num={3} data={daily} positive={true} />
-                <DailyRecord num={4} data={daily} positive={true} />
-                <DailyRecord num={5} data={daily} positive={true} />
-                <DailyRecord num={6} data={daily} positive={true} />
-              </ScrollView>
+              <View style={{ marginTop: 50 }}>
+                <ScrollView>
+                  <DailyRecord num={0} data={_dailytmp} positive={false} />
+                </ScrollView>
+              </View>
             </View>
           </TabNavigator.Item>
 
@@ -734,7 +887,7 @@ export default function HomePage({ navigation }) {
                   >
                     <Text style={styles.informationText}>IMO : 9629469</Text>
                     <Text style={styles.informationText}>
-                      Position Received : 2021-11-11 23:30 UTC
+                      Position Received : 2022-06-02 06:30 UTC
                     </Text>
                     <Text style={styles.informationText}>
                       Vessel is Out-of-Range

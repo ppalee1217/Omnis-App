@@ -9,7 +9,26 @@ import {
   FlatList,
 } from "react-native";
 
+// const data = {
+//   date: (_date.getMonth() + 1 + "/" + _date.getDate()).toString(),
+//   yesterDayPosition: yesterDayPosition,
+//   nowPosition: position,
+//   yesterDayco2: yesterDayco2,
+//   toDayco2: toDayco2,
+//   rpm: todayRPM,
+
+//   AWH: waveHieght,
+//   wind: windSpeed,
+//   AWT: AWT,
+// };
+
 function DailyRecord(props) {
+  // if(props.data.yesterDayco2 == 0){
+  //   props.data.yesterDayco2 = props.data.toDayco2
+  // }
+  let ysday = props.data[props.num].yesterDayPosition
+  let today = props.data[props.num].nowPosition
+  // let co2percent = (props.data.toDayco2 - props.data.yesterDayco2) / props.data.yesterDayco2 * 100
   return (
     <View style={styles.DailyRecordContainer}>
       <View style={styles.DateContainer}>
@@ -33,13 +52,13 @@ function DailyRecord(props) {
       </View>
       <View style={styles.TextContainer}>
         <Text style={styles.informationText}>
-          From 25.81°/120.77° to 40.42°/123.83°
+          From {ysday.latitude.toFixed(2)}°/{ysday.longitude.toFixed(2)}° to {today.latitude.toFixed(2)}°/{today.longitude.toFixed(2)}°
         </Text>
-        <Text style={styles.informationText}>Max PPM : 50.7</Text>
-        <Text style={styles.informationText}>Min PRM : 17.5</Text>
-        <Text style={styles.informationText}>Ave Wave Height(m) : 1.03</Text>
-        <Text style={styles.informationText}>Max Wind (kts) :10</Text>
-        <Text style={styles.informationText}>Ave Wind Temp : 24.5°C</Text>
+        <Text style={styles.informationText}>Max PPM : {Math.max(...props.data[props.num].rpm)} </Text>
+        <Text style={styles.informationText}>Min PRM : {Math.min(...props.data[props.num].rpm)}</Text>
+        <Text style={styles.informationText}>Ave Wave Height(m) : {props.data[props.num].AWH}</Text>
+        <Text style={styles.informationText}>Max Wind (kts) : {props.data[props.num].wind}</Text>
+        <Text style={styles.informationText}>Ave Wind Temp : {props.data[props.num].AWT}°C</Text>
       </View>
     </View>
   );

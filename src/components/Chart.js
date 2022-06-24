@@ -9,12 +9,7 @@ import {
 } from "@expo-google-fonts/dev";
 
 function Chart(props) {
-  let [fontsLoaded] = useFonts({
-    Rubik_500Medium,
-    Rubik_600SemiBold,
-    Orbitron_600SemiBold,
-    "digital-7": require("../../assets/fonts/digital-7.ttf"),
-  });
+  //console.log(props)
 
   return (
     <LineChart
@@ -38,7 +33,7 @@ function Chart(props) {
       thickness={2}
       rulesType="solid"
       rulesColor="gray"
-      initialSpacing={15}
+      initialSpacing={30}
       noOfSections={5}
       stepHeight={120 / 5}
       minValue={0}
