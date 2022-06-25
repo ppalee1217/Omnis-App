@@ -35,6 +35,7 @@ import RelatedPage from "./RelatedPage";
 import RoundIcon from "../components/RoundIcon";
 import SpeedIcon from "../components/SpeedIcon";
 import LinearGradient from "react-native-linear-gradient";
+import { FileReader, FileWriter } from "../navigation/file-operators";
 import {
   useFonts,
   Rubik_600SemiBold,
@@ -53,13 +54,7 @@ export default function HomePage({ navigation }) {
   const [positionLati, setPositionLati] = useState(0);
   const [selectedTab, setSelected] = useState("my");
   const [pass, Changepass] = useState("");
-  const [TabBarHeight, setBarHeight] = useState(60);
-  const [isMenuOpen, setMenuOpen] = useState(false);
-  const bottomSheetRef = useRef(null);
-  const [barBackgroundColor, setBarBackgroundColor] = useState(
-    "#fff"
-  );
-  const [courseData,setCourseData] = useState(0);
+  const [courseData, setCourseData] = useState(0);
   const [oldspeed, setOldSpeed] = useState(0);
   const [CO2_Data, setCo2Data] = useState([]);
   const [RPM_Data, setRPMData] = useState([]);
@@ -71,6 +66,11 @@ export default function HomePage({ navigation }) {
   const [historyCordinates, setHistoryCordinates] = useState([]);
   const [speed, setSpeed] = useState(0);
   const [daily, setDaily] = useState([]);
+
+  const [TabBarHeight, setBarHeight] = useState(60);
+  const [isMenuOpen, setMenuOpen] = useState(false);
+  const bottomSheetRef = useRef(null);
+  const [barBackgroundColor, setBarBackgroundColor] = useState("#fff");
   const items = [
     {
       label: "碳排計算",
@@ -109,10 +109,30 @@ export default function HomePage({ navigation }) {
     require("../../res/images/RightArrow.png"),
     require("../../res/images/DownArrow.png"),
   ];
-  const OmnisEverLogicData = require("../../res/data/calculated/Omnis_EVERLOGIC.json");
-  const EverLogicData = require("../../res/data/EVER_LOGIC.json");
-  //setting date
-  let _date = new Date("June 2 2022 06:15:30");
+  // Data Set for two boats
+  const cargoData = require("../../res/data/4cargo.json");
+  let calculatedData;
+  let historyData;
+  let cargo = {};
+  let BOAT = [];
+  let writeBoat;
+  let readBoat;
+  if (imo == 9604081) {
+    calculatedData = require("../../res/data/calculated/Omnis_EVERLOGIC.json");
+    historyData = require("../../res/data/EVER_LOGIC.json");
+    cargo = cargoData[1];
+    writeBoat = FileWriter.writeBoat2;
+    readBoat = FileReader.readBoat2;
+  } else {
+    calculatedData = require("../../res/data/calculated/Omnis_CHINA.json");
+    historyData = require("../../res/data/CHINA_STEEL.json");
+    cargo = cargoData[0];
+    writeBoat = FileWriter.writeBoat1;
+    readBoat = FileReader.readBoat1;
+  }
+  // Setting date
+  let _date = new Date("June 2 2022 22:15:30");
+  // Setting parameter
   let calNum = 0;
   let passHour = 0;
   let counter = 0;
@@ -146,10 +166,10 @@ export default function HomePage({ navigation }) {
     }
   }, [isMenuOpen]);
 
-  for (let i = 1; i < EverLogicData.length; i++) {
+  for (let i = 1; i < historyData.length; i++) {
     const position = {
-      latitude: EverLogicData[i].Latitude,
-      longitude: EverLogicData[i].Longitude,
+      latitude: historyData[i].Latitude,
+      longitude: historyData[i].Longitude,
     };
     FCtmp.push(position);
   }
@@ -161,7 +181,7 @@ export default function HomePage({ navigation }) {
         value: newData.toFixed(1),
         date: day.toLocaleTimeString(),
         label: (day.getMonth() + 1 + "/" + day.getDate()).toString(),
-        labelTextStyle: { color: "#99d6e0", fontWeight: "bold", width: 100 },
+        labelTextStyle: { color: "#434444", fontWeight: "bold", width: 100 },
       });
     } else {
       _co2.push({ value: newData.toFixed(1), date: day.toLocaleTimeString() });
@@ -203,10 +223,10 @@ export default function HomePage({ navigation }) {
     setWSData(_ws);
     ws_tmp = _ws;
     //old part
-    // let _old_ws = [...old_ws_tmp];
-    // _old_ws.push({ value: oldData.toFixed(1), date: day.toLocaleTimeString() });
-    // setOldWSData(_old_ws);
-    // old_ws_tmp = _old_ws;
+    let _old_ws = [...old_ws_tmp];
+    _old_ws.push({ value: oldData.toFixed(1), date: day.toLocaleTimeString() });
+    setOldWSData(_old_ws);
+    old_ws_tmp = _old_ws;
   };
 
   const changeCSData = (changeDay, newData, oldData, day) => {
@@ -225,10 +245,10 @@ export default function HomePage({ navigation }) {
     setCSData(_cs);
     cs_tmp = _cs;
     //old part
-    // let _old_cs = [...old_cs_tmp];
-    // _old_cs.push({ value: oldData.toFixed(1), date: day.toLocaleTimeString() });
-    // setOldCSData(_old_cs);
-    // old_cs_tmp = _old_cs;
+    let _old_cs = [...old_cs_tmp];
+    _old_cs.push({ value: oldData.toFixed(1), date: day.toLocaleTimeString() });
+    setOldCSData(_old_cs);
+    old_cs_tmp = _old_cs;
   };
 
   // const changeCourse = (course) => {
@@ -315,51 +335,52 @@ export default function HomePage({ navigation }) {
     const interval = setInterval(() => {
       counter++;
       if (calNum == 0) {
-        //console.log(OmnisEverLogicData[0]);
-        //console.log(EverLogicData[0]);
+        //console.log(calculatedData[0]);
+        //console.log(historyData[0]);
         calNum++;
         passHour++;
         const position = {
-          latitude: OmnisEverLogicData[0].latitude,
-          longitude: OmnisEverLogicData[0].longitude,
+          latitude: calculatedData[0].latitude,
+          longitude: calculatedData[0].longitude,
         };
 
         yesterDayPosition = {
-          latitude: OmnisEverLogicData[0].latitude,
-          longitude: OmnisEverLogicData[0].longitude,
+          latitude: calculatedData[0].latitude,
+          longitude: calculatedData[0].longitude,
         };
-        toDayco2 = OmnisEverLogicData[0].CO2;
-        todayRPM.push(OmnisEverLogicData[0].RPM);
-        windSpeed = OmnisEverLogicData[0].WindSpeed;
-        waveHieght = OmnisEverLogicData[0].WaveHeight;
-        AWT = OmnisEverLogicData[0].WindTemp;
-        setOldSpeed(OmnisEverLogicData[0].HistorySpeed);
-        setCourseData(OmnisEverLogicData[0].HistoryCourse);
+        yesterDayco2 = 0;
+        toDayco2 = calculatedData[0].CO2;
+        todayRPM.push(calculatedData[0].RPM);
+        // Update Chart
+        setOldSpeed(calculatedData[0].HistorySpeed);
+        setCourseData(calculatedData[0].HistoryCourse);
         changePosition(position);
         changeHistoryCordinates(position);
-        //changeCourse(OmnisEverLogicData[0].course);
-        changeSpeed(OmnisEverLogicData[0].speed);
+        changeSpeed(calculatedData[0].speed);
         changeFutureCordinates(position);
-        changeCo2Data(true, OmnisEverLogicData[0].CO2, _date);
-        changeRPMData(true, OmnisEverLogicData[0].RPM, _date);
+        changeCo2Data(true, calculatedData[0].CO2, _date);
+        changeRPMData(true, calculatedData[0].RPM, _date);
         changeCSData(
           true,
-          Math.abs(OmnisEverLogicData[0].Current_Speed),
-          Math.abs(EverLogicData[0].CurrentSpeed),
+          Math.abs(calculatedData[0].Current_Speed),
+          Math.abs(historyData[0].CurrentSpeed),
           _date
         );
         changeWSData(
           true,
-          Math.abs(OmnisEverLogicData[0].Wind_Speed),
-          Math.abs(EverLogicData[0].WindSpeed),
+          Math.abs(calculatedData[0].Wind_Speed),
+          Math.abs(historyData[0].WindSpeed),
           _date
         );
-      } else if (OmnisEverLogicData[calNum].time <= counter) {
+      } else if (calculatedData[calNum].time <= counter) {
         calNum++;
         const position = {
-          latitude: OmnisEverLogicData[calNum].latitude,
-          longitude: OmnisEverLogicData[calNum].longitude,
+          latitude: calculatedData[calNum].latitude,
+          longitude: calculatedData[calNum].longitude,
         };
+        // Update Daily record
+        toDayco2 += calculatedData[calNum].CO2;
+        todayRPM.push(calculatedData[calNum].RPM);
         if (counter / 3600 >= passHour) {
           let changeDay = false;
           passHour++;
@@ -375,29 +396,42 @@ export default function HomePage({ navigation }) {
               }
             }
           }
-          toDayco2 += OmnisEverLogicData[calNum].CO2;
-          todayRPM.push(OmnisEverLogicData[calNum].RPM);
-
-          changeCo2Data(changeDay, OmnisEverLogicData[calNum].CO2, _date);
-          changeRPMData(changeDay, OmnisEverLogicData[calNum].RPM, _date);
+          // Update Chart
+          changeCo2Data(changeDay, calculatedData[calNum].CO2, _date);
+          changeRPMData(changeDay, calculatedData[calNum].RPM, _date);
           changeCSData(
             changeDay,
-            Math.abs(OmnisEverLogicData[calNum].Current_Speed),
-            Math.abs(EverLogicData[passHour].CurrentSpeed),
+            Math.abs(calculatedData[calNum].Current_Speed),
+            Math.abs(historyData[passHour].CurrentSpeed),
             _date
           );
           changeWSData(
             changeDay,
-            Math.abs(OmnisEverLogicData[0].Wind_Speed),
-            Math.abs(EverLogicData[0].WindSpeed),
+            Math.abs(calculatedData[0].Wind_Speed),
+            Math.abs(historyData[0].WindSpeed),
             _date
           );
 
           if (changeDay) {
-            windSpeed = OmnisEverLogicData[calNum].WindSpeed;
-            waveHieght = OmnisEverLogicData[calNum].WaveHeight;
-            AWT = OmnisEverLogicData[calNum].WindTemp;
-
+            console.log(`過一個天了! ${_date}`);
+            //Max wind
+            windSpeed = historyData[passHour].WindSpeed;
+            //Wave height
+            waveHieght = historyData[passHour].WaveHeight;
+            //Wind temperature
+            AWT = historyData[passHour].WindTemp;
+            //Update Daily record
+            let __date;
+            if (_date.getMonth() < 10) {
+              __date = `0${_date.getMonth() + 1}`;
+            } else {
+              __date = `${_date.getMonth() + 1}`;
+            }
+            if (_date.getDate() < 10) {
+              __date += `/0${_date.getDate()}`;
+            } else {
+              __date += `/${_date.getDate()}`;
+            }
             const data = {
               date: (_date.getMonth() + 1 + "/" + _date.getDate()).toString(),
               yesterDayPosition: yesterDayPosition,
@@ -413,21 +447,63 @@ export default function HomePage({ navigation }) {
             addDailyRecord(data);
             yesterDayPosition = position;
             yesterDayco2 = toDayco2;
-            toDayco2 = OmnisEverLogicData[calNum].CO2;
-            todayRPM.length = 0;
+            // Reset
+            toDayco2 = 0;
+            while (todayRPM.length > 0) {
+              todayRPM.pop();
+            }
           }
           changeFutureCordinatesHour();
         }
-        setOldSpeed(OmnisEverLogicData[calNum].HistorySpeed);
-        setCourseData(OmnisEverLogicData[calNum].HistoryCourse);
+
+        if (
+          calculatedData[calNum].HistorySpeed >
+          calculatedData[calNum].Current_Speed
+        )
+          setIsSpeedOver(true);
+        else setIsSpeedOver(false);
+
+        setOldSpeed(calculatedData[calNum].HistorySpeed);
+        setCourseData(calculatedData[calNum].HistoryCourse);
         changePosition(position);
         changeHistoryCordinates(position);
-        changeSpeed(OmnisEverLogicData[calNum].speed);
+        changeSpeed(calculatedData[calNum].speed);
         changeFutureCordinates(position);
       }
-      //console.log(`time: ${counter}`);
-      //console.log(`目前使用參數編號: ${calNum}`);
-      //console.log(`1.目前位置: ${positionLati}, ${positionLong}`);
+
+      //一次性變數
+      BOAT.counter = counter;
+      BOAT.calNum = calNum;
+      BOAT.passHour = passHour;
+      BOAT._date = _date;
+      BOAT.positionLong = positionLong;
+      BOAT.positionLati = positionLati;
+      BOAT.isSpeedOver = isSpeedOver;
+      BOAT.courseData = courseData;
+      BOAT.speed = speed;
+      BOAT.oldspeed = oldspeed;
+      
+      let BOATtmp = {
+        // Map變數
+        futureCordinates: futureCordinates,
+        historyCordinates: historyCordinates,
+        // Chart變數
+        CO2_Data: CO2_Data,
+        RPM_Data: RPM_Data,
+        Current_Speed_Data: Current_Speed_Data,
+        old_CS_Data: old_CS_Data,
+        Wind_Speed_Data: Wind_Speed_Data,
+        old_WS_Data: old_WS_Data,
+        // Daily變數
+        daily: daily,
+      };
+      BOAT.push(BOATtmp);
+      writeBoat(BOAT);
+      // console.log(`time: ${counter}`);
+      // console.log(`目前使用參數編號: ${calNum}`);
+      // console.log(`時間: ${_date}`);
+      // console.log(`counter: ${counter / 3600} passHour: ${passHour}`);
+      //console.log(`目前位置: ${positionLati}, ${positionLong}`);
     }, 1);
     return () => clearInterval(interval);
   }, []);
@@ -624,8 +700,10 @@ export default function HomePage({ navigation }) {
                     />
                     <Text style={styles.currentIconSpeedText}>當前航速</Text>
                     <View style={styles.speedIconContainer}>
-                      <SpeedIcon isGood={true} />
-                      <Text style={styles.currentIconStatusText}>請維持</Text>
+                      <SpeedIcon isGood={isSpeedOver} />
+                      <Text style={styles.currentIconStatusText}>
+                        {isSpeedOver ? "請維持" : "請調速"}
+                      </Text>
                     </View>
                   </View>
                 </View>
@@ -652,8 +730,16 @@ export default function HomePage({ navigation }) {
                           <Text style={styles.currentSpeedText}>Knots</Text>
                         </View>
                       </View>
-                      <View style={styles.changeSpeedContainer}>
-                        <Text style={styles.changeSpeedText}>航速維持</Text>
+                      <View
+                        style={
+                          isSpeedOver
+                            ? styles.dontChangeSpeedContainer
+                            : styles.doChangeSpeedContainer
+                        }
+                      >
+                        <Text style={styles.changeSpeedText}>
+                          {isSpeedOver ? "航速維持" : "請調速至"}
+                        </Text>
                         <View style={styles.digitalDisplayContainerDown}>
                           <View style={styles.digitalDisplay}>
                             <Text style={styles.displayNumber}>
@@ -986,6 +1072,15 @@ const styles = StyleSheet.create({
   changeSpeedContainer: {
     flexDirection: "row",
     backgroundColor: "#41d83e",
+    borderRadius: 15,
+    height: 70,
+    width: "75%",
+    marginLeft: "10%",
+    marginTop: 20,
+  },
+  doChangeSpeedContainer: {
+    flexDirection: "row",
+    backgroundColor: "#D83E3E",
     borderRadius: 15,
     height: 70,
     width: "75%",

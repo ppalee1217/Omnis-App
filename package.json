@@ -30,6 +30,7 @@
     "react-native": "0.64.3",
     "react-native-background-timer": "^2.4.1",
     "react-native-floating-action-menu": "^1.2.4",
+    "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "~2.1.0",
     "react-native-gifted-charts": "^1.2.30",
     "react-native-linear-gradient": "^2.5.6",

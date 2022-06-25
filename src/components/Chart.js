@@ -14,6 +14,7 @@ function Chart(props) {
   return (
     <LineChart
       data={props.data}
+      data2={props.data2 ? props.data2 : null}
       backgroundColor={"#fff"}
       curved={true}
       showVerticalLines={true}
