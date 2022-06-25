@@ -1,10 +1,4 @@
-import React, {
-  Component,
-  useState,
-  useRef,
-  useEffect,
-  PureComponent,
-} from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -26,14 +20,15 @@ import MapView, {
 } from "react-native-maps";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { FloatingMenu } from "react-native-floating-action-menu";
+import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
-import DailyList from "../components/DailyList";
 import DailyRecord from "../components/DailyRecord";
 import Chart from "../components/Chart";
 import RelatedPage from "./RelatedPage";
 import RoundIcon from "../components/RoundIcon";
 import SpeedIcon from "../components/SpeedIcon";
+import LanguageBar from "../components/LanguageBar";
 import LinearGradient from "react-native-linear-gradient";
 import {
   useFonts,
@@ -42,13 +37,12 @@ import {
   Orbitron_600SemiBold,
 } from "@expo-google-fonts/dev";
 
-export default function HomePage({ navigation }) {
+export default function HomePage({ route, navigation }) {
   let [fontsLoaded] = useFonts({
-    Rubik_500Medium,
-    Rubik_600SemiBold,
-    Orbitron_600SemiBold,
     "digital-7": require("../../assets/fonts/digital-7.ttf"),
   });
+  const { imo } = route.params;
+  const [isSpeedOver, setIsSpeedOver] = useState(false);
   const [positionLong, setPositionLong] = useState(0);
   const [positionLati, setPositionLati] = useState(0);
   const [selectedTab, setSelected] = useState("my");
@@ -56,10 +50,8 @@ export default function HomePage({ navigation }) {
   const [TabBarHeight, setBarHeight] = useState(60);
   const [isMenuOpen, setMenuOpen] = useState(false);
   const bottomSheetRef = useRef(null);
-  const [barBackgroundColor, setBarBackgroundColor] = useState(
-    "#fff"
-  );
-  const [courseData,setCourseData] = useState(0);
+  const [barBackgroundColor, setBarBackgroundColor] = useState("#fff");
+  const [courseData, setCourseData] = useState(0);
   const [oldspeed, setOldSpeed] = useState(0);
   const [CO2_Data, setCo2Data] = useState([]);
   const [RPM_Data, setRPMData] = useState([]);
@@ -70,7 +62,29 @@ export default function HomePage({ navigation }) {
   const [futureCordinates, setFutureCordinates] = useState([]);
   const [historyCordinates, setHistoryCordinates] = useState([]);
   const [speed, setSpeed] = useState(0);
-  const [daily, setDaily] = useState([]);
+  const [daily, setDaily] = useState([
+    {
+      id: 1,
+      date: ("06" + "/" + "05").toString(),
+      yesterDayPosition: {
+        latitude: 22.13317,
+        longitude: 114.30149999999998,
+      },
+      nowPosition: {
+        latitude: 22.08954560403521,
+        longitude: 115.03567901450702,
+      },
+      yesterDayco2: 0,
+      toDayco2: 3911.14,
+      rpm: [
+        11.229775257072086, 11.230445753704952, 11.19386364548194,
+        11.196910107282825,
+      ],
+      AWH: 0.1,
+      wind: 13,
+      AWT: 25,
+    }
+  ]);
   const items = [
     {
       label: "碳排計算",
@@ -109,10 +123,19 @@ export default function HomePage({ navigation }) {
     require("../../res/images/RightArrow.png"),
     require("../../res/images/DownArrow.png"),
   ];
+  // Data
   const OmnisEverLogicData = require("../../res/data/calculated/Omnis_EVERLOGIC.json");
   const EverLogicData = require("../../res/data/EVER_LOGIC.json");
+  const cargoData = require("../../res/data/4cargo.json");
+  let cargo = {};
+  if (imo == "9832975") {
+    cargo = cargoData[0];
+  } else {
+    cargo = cargoData[1];
+  }
+  //console.log(cargo);
   //setting date
-  let _date = new Date("June 2 2022 06:15:30");
+  let _date = new Date("June 2 2022 22:15:30");
   let calNum = 0;
   let passHour = 0;
   let counter = 0;
@@ -124,7 +147,29 @@ export default function HomePage({ navigation }) {
   let ws_tmp = [];
   let FCtmp = [];
   let HCtmp = [];
-  let dailytmp = [];
+  let dailytmp = [
+    {
+      id: 1,
+      date: ("06" + "/" + "05").toString(),
+      yesterDayPosition: {
+        latitude: 22.13317,
+        longitude: 114.30149999999998,
+      },
+      nowPosition: {
+        latitude: 22.08954560403521,
+        longitude: 115.03567901450702,
+      },
+      yesterDayco2: 0,
+      toDayco2: 3911.14,
+      rpm: [
+        11.229775257072086, 11.230445753704952, 11.19386364548194,
+        11.196910107282825,
+      ],
+      AWH: 0.1,
+      wind: 13,
+      AWT: 25,
+    }
+  ];
   let yesterDayPosition = {};
   let yesterDayco2 = 0;
   let toDayco2 = 0;
@@ -272,44 +317,13 @@ export default function HomePage({ navigation }) {
     //console.log(HC);
   };
 
-  // const data = {
-  //   date: (_date.getMonth() + 1 + "/" + _date.getDate()).toString(),
-  //   yesterDayPosition: yesterDayPosition,
-  //   nowPosition: position,
-  //   co2: yesterDayco2,
-  //   rpm: todayRPM,
-
-  //   AWH: waveHieght,
-  //   wind: windSpeed,
-  //   AWT: AWT,
-  // };
-
-  // const addDailyRecord = (data) => {
-  //   let dailyTmp = [...dailytmp];
-  //   dailyTmp.push(data);
-  //   setDaily(dailyTmp);
-  //   dailytmp = dailyTmp;
-  // };
-
-  const _dailytmp = [
-    {
-      date: "06/02",
-      percent: 0.03,
-      co2: "22464t",
-      yesterDayPosition:{
-        latitude: 22.32706,
-        longitude: 114.1327,
-      },
-      nowPosition:{
-        latitude: 21.75256,
-        longitude: 118.6125,
-      },
-      rpm:[11.24,11.34],
-      wind:15,
-      AWH:0.7,
-      AWT:27,
-    },
-  ];
+  const addDailyRecord = (data) => {
+    console.log("新增Reocrd!");
+    let dailyTmp = [...dailytmp];
+    dailyTmp.push(data);
+    setDaily(dailyTmp);
+    dailytmp = dailyTmp;
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -323,21 +337,19 @@ export default function HomePage({ navigation }) {
           latitude: OmnisEverLogicData[0].latitude,
           longitude: OmnisEverLogicData[0].longitude,
         };
-
+        // Update Daily record
         yesterDayPosition = {
           latitude: OmnisEverLogicData[0].latitude,
           longitude: OmnisEverLogicData[0].longitude,
         };
+        yesterDayco2 = 0;
         toDayco2 = OmnisEverLogicData[0].CO2;
         todayRPM.push(OmnisEverLogicData[0].RPM);
-        windSpeed = OmnisEverLogicData[0].WindSpeed;
-        waveHieght = OmnisEverLogicData[0].WaveHeight;
-        AWT = OmnisEverLogicData[0].WindTemp;
+        // Update Chart
         setOldSpeed(OmnisEverLogicData[0].HistorySpeed);
         setCourseData(OmnisEverLogicData[0].HistoryCourse);
         changePosition(position);
         changeHistoryCordinates(position);
-        //changeCourse(OmnisEverLogicData[0].course);
         changeSpeed(OmnisEverLogicData[0].speed);
         changeFutureCordinates(position);
         changeCo2Data(true, OmnisEverLogicData[0].CO2, _date);
@@ -355,17 +367,22 @@ export default function HomePage({ navigation }) {
           _date
         );
       } else if (OmnisEverLogicData[calNum].time <= counter) {
+        //console.log(daily)
         calNum++;
         const position = {
           latitude: OmnisEverLogicData[calNum].latitude,
           longitude: OmnisEverLogicData[calNum].longitude,
         };
+        // Update Daily record
+        toDayco2 += OmnisEverLogicData[calNum].CO2;
+        todayRPM.push(OmnisEverLogicData[calNum].RPM);
         if (counter / 3600 >= passHour) {
+          console.log(`過一個小時了 ${passHour}`);
           let changeDay = false;
           passHour++;
           let nowHour = _date.getHours();
           _date.setHours(nowHour + 1);
-          if (_date.getHours() == 1) {
+          if (_date.getHours() == 0) {
             _date.setDate(_date.getDate() + 1);
             changeDay = true;
             if (_date.getDate() == 1) {
@@ -375,9 +392,7 @@ export default function HomePage({ navigation }) {
               }
             }
           }
-          toDayco2 += OmnisEverLogicData[calNum].CO2;
-          todayRPM.push(OmnisEverLogicData[calNum].RPM);
-
+          // Update Chart
           changeCo2Data(changeDay, OmnisEverLogicData[calNum].CO2, _date);
           changeRPMData(changeDay, OmnisEverLogicData[calNum].RPM, _date);
           changeCSData(
@@ -394,18 +409,40 @@ export default function HomePage({ navigation }) {
           );
 
           if (changeDay) {
-            windSpeed = OmnisEverLogicData[calNum].WindSpeed;
-            waveHieght = OmnisEverLogicData[calNum].WaveHeight;
-            AWT = OmnisEverLogicData[calNum].WindTemp;
-
+            console.log(`過一個天了! ${_date}`);
+            //Max wind
+            windSpeed = EverLogicData[passHour].WindSpeed;
+            //Wave height
+            waveHieght = EverLogicData[passHour].WaveHeight;
+            //Wind temperature
+            AWT = EverLogicData[passHour].WindTemp;
+            //Update Daily record
+            let __date;
+            if(_date.getMonth() < 10) {
+              __date = `0${_date.getMonth()+1}`;
+            }
+            else{
+              __date = `${_date.getMonth()+1}`;
+            }
+            if(_date.getDate() < 10) {
+              __date += `/0${_date.getDate()}`;
+            }
+            else{
+              __date += `/${_date.getDate()}`;
+            }
             const data = {
-              date: (_date.getMonth() + 1 + "/" + _date.getDate()).toString(),
+              id: passHour + 1,
+              // Date
+              date: __date,
+              // From A to B
               yesterDayPosition: yesterDayPosition,
               nowPosition: position,
+              // Total Co2
               yesterDayco2: yesterDayco2,
               toDayco2: toDayco2,
+              // RPM array
               rpm: todayRPM,
-
+              // Misc
               AWH: waveHieght,
               wind: windSpeed,
               AWT: AWT,
@@ -413,11 +450,20 @@ export default function HomePage({ navigation }) {
             addDailyRecord(data);
             yesterDayPosition = position;
             yesterDayco2 = toDayco2;
-            toDayco2 = OmnisEverLogicData[calNum].CO2;
-            todayRPM.length = 0;
+            // Reset
+            toDayco2 = 0;
+            while(todayRPM.length > 0) {
+              todayRPM.pop();
+            }
           }
           changeFutureCordinatesHour();
         }
+
+        if(OmnisEverLogicData[calNum].HistorySpeed > OmnisEverLogicData[calNum].Current_Speed)
+          setIsSpeedOver(true);
+        else
+          setIsSpeedOver(false);
+
         setOldSpeed(OmnisEverLogicData[calNum].HistorySpeed);
         setCourseData(OmnisEverLogicData[calNum].HistoryCourse);
         changePosition(position);
@@ -425,9 +471,11 @@ export default function HomePage({ navigation }) {
         changeSpeed(OmnisEverLogicData[calNum].speed);
         changeFutureCordinates(position);
       }
-      //console.log(`time: ${counter}`);
-      //console.log(`目前使用參數編號: ${calNum}`);
-      //console.log(`1.目前位置: ${positionLati}, ${positionLong}`);
+      // console.log(`time: ${counter}`);
+      // console.log(`目前使用參數編號: ${calNum}`);
+      // console.log(`時間: ${_date}`);
+      // console.log(`counter: ${counter / 3600} passHour: ${passHour}`);
+      //console.log(`目前位置: ${positionLati}, ${positionLong}`);
     }, 1);
     return () => clearInterval(interval);
   }, []);
@@ -613,7 +661,11 @@ export default function HomePage({ navigation }) {
                     onItemPress={handleItemPress}
                   />
                   <View style={[styles.container, { top: "7%" }]}>
-                    <RoundIcon num={courseData} text={"COURSE"} img={arrowImage} />
+                    <RoundIcon
+                      num={courseData}
+                      text={"COURSE"}
+                      img={arrowImage}
+                    />
                     <Text style={styles.courseText}>COURSE</Text>
                   </View>
                   <View style={[styles.container, { bottom: "5%" }]}>
@@ -624,8 +676,8 @@ export default function HomePage({ navigation }) {
                     />
                     <Text style={styles.currentIconSpeedText}>當前航速</Text>
                     <View style={styles.speedIconContainer}>
-                      <SpeedIcon isGood={true} />
-                      <Text style={styles.currentIconStatusText}>請維持</Text>
+                      <SpeedIcon isGood={isSpeedOver} />
+                      <Text style={styles.currentIconStatusText}>{isSpeedOver ?"請維持" :"請調速"}</Text>
                     </View>
                   </View>
                 </View>
@@ -647,13 +699,15 @@ export default function HomePage({ navigation }) {
                         <Text style={styles.currentSpeedText}>當前航速</Text>
                         <View style={styles.digitalDisplayContainer}>
                           <View style={styles.digitalDisplay}>
-                            <Text style={styles.displayNumber}>{oldspeed}</Text>
+                            <Text style={styles.displayNumber}>
+                              {oldspeed.toFixed(2)}
+                            </Text>
                           </View>
                           <Text style={styles.currentSpeedText}>Knots</Text>
                         </View>
                       </View>
-                      <View style={styles.changeSpeedContainer}>
-                        <Text style={styles.changeSpeedText}>航速維持</Text>
+                      <View style={isSpeedOver ?styles.dontChangeSpeedContainer :styles.doChangeSpeedContainer}>
+                        <Text style={styles.changeSpeedText}>{isSpeedOver ?"航速維持" :"請調速至"}</Text>
                         <View style={styles.digitalDisplayContainerDown}>
                           <View style={styles.digitalDisplay}>
                             <Text style={styles.displayNumber}>
@@ -797,7 +851,22 @@ export default function HomePage({ navigation }) {
             <View style={{ flex: 1 }}>
               <View style={{ marginTop: 50 }}>
                 <ScrollView>
-                  <DailyRecord num={0} data={_dailytmp} positive={false} />
+                  {daily.map((item) => {
+                    return (
+                      <DailyRecord
+                        key={item.id}
+                        toDayCO2={item.toDayco2}
+                        yesterDayCO2={item.yesterDayco2}
+                        date={item.date}
+                        yesterDayPosition={item.yesterDayPosition}
+                        nowPosition={item.nowPosition}
+                        todayRPM={item.rpm}
+                        waveHeight={item.AWH}
+                        windSpeed={item.wind}
+                        AWT={item.AWT}
+                      />
+                    );
+                  })}
                 </ScrollView>
               </View>
             </View>
@@ -867,9 +936,9 @@ export default function HomePage({ navigation }) {
                   <View style={{ flexDirection: "row" }}>
                     <Image
                       style={styles.nation}
-                      source={require("../../res/images/USA.png")}
+                      source={require("../../res/images/taiwan.png")}
                     />
-                    <Text style={styles.nation_text}>SWANSE</Text>
+                    <Text style={styles.nation_text}>{cargo.vesselName}</Text>
                   </View>
                   <Image
                     style={styles.boat}
@@ -885,22 +954,65 @@ export default function HomePage({ navigation }) {
                       alignItems: "center",
                     }}
                   >
-                    <Text style={styles.informationText}>IMO : 9629469</Text>
-                    <Text style={styles.informationText}>
-                      Position Received : 2022-06-02 06:30 UTC
-                    </Text>
-                    <Text style={styles.informationText}>
-                      Vessel is Out-of-Range
-                    </Text>
-                    <Text style={styles.informationText}>
-                      Area : SCHINA-East China Sea
-                    </Text>
-                    <Text style={styles.informationText}>
-                      Current Port : QINGDAO
-                    </Text>
-                    <Text style={styles.informationText}>
-                      AIS Source : 4786 BX3ACC
-                    </Text>
+                    <View style={{ flexDirection: "row" }}>
+                      <Text style={styles.informationText}>IMO : </Text>
+                      <Text style={styles.informationTextPara}>
+                        {" "}
+                        {cargo.imo}
+                      </Text>
+                    </View>
+                    <View style={{ flexDirection: "row" }}>
+                      <Text style={styles.informationText}>MMSI : </Text>
+                      <Text style={styles.informationTextPara}>
+                        {" "}
+                        {cargo.mmsi}
+                      </Text>
+                    </View>
+                    <View style={{ flexDirection: "row" }}>
+                      <Text style={styles.informationText}>length : </Text>
+                      <Text style={styles.informationTextPara}>
+                        {" "}
+                        {cargo.length}
+                      </Text>
+                    </View>
+                    <View style={{ flexDirection: "row" }}>
+                      <Text style={styles.informationText}>Width : </Text>
+                      <Text style={styles.informationTextPara}>
+                        {" "}
+                        {cargo.width}
+                      </Text>
+                    </View>
+                    <View style={{ flexDirection: "row" }}>
+                      <Text style={styles.informationText}>Capacity : </Text>
+                      <Text style={styles.informationTextPara}>
+                        {" "}
+                        {cargo.capacity}
+                      </Text>
+                    </View>
+                    <View style={{ flexDirection: "row" }}>
+                      <Text style={styles.informationText}>Draught : </Text>
+                      <Text style={styles.informationTextPara}>
+                        {" "}
+                        {cargo.draught}
+                      </Text>
+                    </View>
+                    <View style={{ flexDirection: "row" }}>
+                      <Text style={styles.informationText}>Draught Max : </Text>
+                      <Text style={styles.informationTextPara}>
+                        {" "}
+                        {cargo.draughtMax}
+                      </Text>
+                    </View>
+                    <View style={{ flexDirection: "row" }}>
+                      <Text style={styles.informationText}>Draught Min : </Text>
+                      <Text style={styles.informationTextPara}>
+                        {" "}
+                        {cargo.draughtMin}
+                      </Text>
+                    </View>
+                    <View style={{ top: 20 }}>
+                      <LanguageBar />
+                    </View>
                   </View>
                 </View>
               </View>
@@ -983,7 +1095,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 
-  changeSpeedContainer: {
+  dontChangeSpeedContainer: {
     flexDirection: "row",
     backgroundColor: "#41d83e",
     borderRadius: 15,
@@ -992,6 +1104,16 @@ const styles = StyleSheet.create({
     marginLeft: "10%",
     marginTop: 20,
   },
+  doChangeSpeedContainer: {
+    flexDirection: "row",
+    backgroundColor: "#D83E3E",
+    borderRadius: 15,
+    height: 70,
+    width: "75%",
+    marginLeft: "10%",
+    marginTop: 20,
+  },
+
 
   changeSpeedText: {
     marginTop: 20,
@@ -1049,10 +1171,10 @@ const styles = StyleSheet.create({
   },
 
   informationContainer: {
-    top: 40,
-    paddingBottom: 80,
-    paddingLeft: 20,
-    paddingRight: 20,
+    top: 15,
+    paddingBottom: 60,
+    paddingLeft: 80,
+    paddingRight: 80,
     alignItems: "center",
     borderRadius: 25,
     borderWidth: 2,
@@ -1066,15 +1188,15 @@ const styles = StyleSheet.create({
   },
 
   nation_text: {
-    fontFamily: "Rubik_600SemiBold",
-    marginTop: 72,
+    fontFamily: "Rubik_500Medium",
+    marginTop: 29,
     color: "#000",
     fontSize: 24,
-    //fontWeight: 'bold'
+    fontWeight: "bold",
   },
 
   nation: {
-    marginTop: 70,
+    marginTop: 30,
     marginRight: 10,
     width: 32,
     height: 32,
@@ -1085,8 +1207,6 @@ const styles = StyleSheet.create({
     width: 126,
     height: 126,
   },
-
-  logout: {},
 
   ship: {
     height: 50,
@@ -1111,10 +1231,19 @@ const styles = StyleSheet.create({
     //fontWeight: 'bold'
   },
 
+  informationTextPara: {
+    marginTop: 15,
+    color: "gray",
+    fontSize: 16,
+    fontFamily: "Rubik_600SemiBold",
+    fontWeight: "bold",
+  },
+
   informationText: {
-    marginTop: 20,
+    marginTop: 15,
     color: "#000",
     fontSize: 16,
+    fontFamily: "Rubik_500Medium",
     fontWeight: "bold",
   },
 
@@ -1218,6 +1347,7 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     fontSize: 20,
     fontFamily: "Rubik_500Medium",
+    fontWeight: "bold",
     textShadowColor: "rgba(0, 0, 0, 0.75)",
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 6,
@@ -1229,6 +1359,7 @@ const styles = StyleSheet.create({
     width: 90,
     color: "#ffffff",
     fontSize: 20,
+    fontWeight: "bold",
     fontFamily: "Rubik_500Medium",
     textShadowColor: "rgba(0, 0, 0, 0.75)",
     textShadowOffset: { width: 0, height: 1 },
@@ -1241,6 +1372,7 @@ const styles = StyleSheet.create({
     width: 90,
     color: "#ffffff",
     fontSize: 20,
+    fontWeight: "bold",
     fontFamily: "Rubik_500Medium",
     textShadowColor: "rgba(0, 0, 0, 0.75)",
     textShadowOffset: { width: 0, height: 1 },

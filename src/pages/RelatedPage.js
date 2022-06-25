@@ -1,4 +1,11 @@
-import { View, Text, StyleSheet, ImageBackground } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ImageBackground,
+  TouchableOpacity,
+  Linking,
+} from "react-native";
 
 function RelatedPage() {
   return (
@@ -12,8 +19,14 @@ function RelatedPage() {
           }}
           source={require("../../res/images/news.jpg")}
         >
-          <Text style={styles.textInImageUP}>最新動態</Text>
-          <Text style={styles.textInImageDOWN}>進出港船舶、到港時間</Text>
+          <TouchableOpacity
+            onPress={() =>
+              Linking.openURL("https://www.twport.com.tw/chinese/")
+            }
+          >
+            <Text style={styles.textInImageUP}>最新動態</Text>
+            <Text style={styles.textInImageDOWN}>進出港船舶、到港時間</Text>
+          </TouchableOpacity>
         </ImageBackground>
       </View>
       <View style={styles.imageView}>
@@ -26,8 +39,14 @@ function RelatedPage() {
           }}
           source={require("../../res/images/info.jpg")}
         >
-          <Text style={styles.textInImageUP}>海向資訊</Text>
-          <Text style={styles.textInImageDOWN}>查詢風向、風速、潮高</Text>
+          <TouchableOpacity
+            onPress={() =>
+              Linking.openURL("https://isohe.ihmt.gov.tw/Frontend/index.aspx")
+            }
+          >
+            <Text style={styles.textInImageUP}>海向資訊</Text>
+            <Text style={styles.textInImageDOWN}>查詢風向、風速、潮高</Text>
+          </TouchableOpacity>
         </ImageBackground>
       </View>
       <View style={styles.imageView}>
@@ -40,8 +59,14 @@ function RelatedPage() {
           }}
           source={require("../../res/images/safe.jpg")}
         >
-          <Text style={styles.textInImageUP}>港務安全</Text>
-          <Text style={styles.textInImageDOWN}>政策條例、糾紛查詢</Text>
+          <TouchableOpacity
+            onPress={() =>
+              Linking.openURL("https://www.motcmpb.gov.tw/")
+            }
+          >
+            <Text style={styles.textInImageUP}>港務安全</Text>
+            <Text style={styles.textInImageDOWN}>政策條例、糾紛查詢</Text>
+          </TouchableOpacity>
         </ImageBackground>
       </View>
     </View>
@@ -73,7 +98,7 @@ const styles = StyleSheet.create({
 
   textInImageUP: {
     left: 5,
-    top: "35%",
+    top: "85%",
     fontSize: 32,
     color: "#ffffff",
     fontWeight: "bold",
@@ -81,7 +106,7 @@ const styles = StyleSheet.create({
 
   textInImageDOWN: {
     left: 10,
-    top: "35%",
+    top: "85%",
     fontSize: 12,
     paddingBottom: 15,
     color: "#ffffff",

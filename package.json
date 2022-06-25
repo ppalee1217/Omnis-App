@@ -28,7 +28,6 @@
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-native": "0.64.3",
-    "react-native-background-timer": "^2.4.1",
     "react-native-floating-action-menu": "^1.2.4",
     "react-native-gesture-handler": "~2.1.0",
     "react-native-gifted-charts": "^1.2.30",
@@ -37,10 +36,10 @@
     "react-native-reanimated": "~2.3.1",
     "react-native-safe-area-context": "3.3.2",
     "react-native-screens": "~3.10.1",
+    "react-native-select-dropdown": "^2.0.3",
     "react-native-tab-navigator": "^0.3.4",
     "react-native-web": "0.17.1",
     "react-navigation": "^4.4.4",
-    "recharts": "^2.1.9",
     "rn-bottom-drawer": "^1.4.3"
   },
   "devDependencies": {

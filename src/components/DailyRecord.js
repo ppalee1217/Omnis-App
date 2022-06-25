@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -9,6 +8,12 @@ import {
   FlatList,
 } from "react-native";
 
+import {
+  useFonts,
+  Rubik_600SemiBold,
+  Rubik_500Medium,
+  Orbitron_600SemiBold,
+} from "@expo-google-fonts/dev";
 // const data = {
 //   date: (_date.getMonth() + 1 + "/" + _date.getDate()).toString(),
 //   yesterDayPosition: yesterDayPosition,
@@ -23,46 +28,74 @@ import {
 // };
 
 function DailyRecord(props) {
-  // if(props.data.yesterDayco2 == 0){
-  //   props.data.yesterDayco2 = props.data.toDayco2
-  // }
-  let ysday = props.data[props.num].yesterDayPosition
-  let today = props.data[props.num].nowPosition
-  // let co2percent = (props.data.toDayco2 - props.data.yesterDayco2) / props.data.yesterDayco2 * 100
+  console.log(props)
+  let [fontsLoaded] = useFonts({
+    "digital-7": require("../../assets/fonts/digital-7.ttf"),
+  });
+  let init = false;
+  if (props.yesterDayCO2 == 0) {
+    init = true;
+  }
+  let ysday = props.yesterDayPosition;
+  let today = props.nowPosition;
+  let co2percent;
+  if (init) {
+    co2percent = "第一天不計算值";
+  } else {
+    co2percent =
+      ((props.toDayCO2 - props.yesterDayCO2) / props.yesterDayCO2) * 100;
+  }
+  //console.log(props.toDayco2)
   return (
     <View style={styles.DailyRecordContainer}>
       <View style={styles.DateContainer}>
-        <Text style={styles.dateText}>{props.data[props.num].date}</Text>
+        <Text style={styles.dateText}>{props.date}</Text>
         <View style={{ flexDirection: "row" }}>
           <Image
             style={styles.symbol}
             source={
-              props.positive
+              co2percent > 0
                 ? require("../../res/images/up.png")
                 : require("../../res/images/down.png")
             }
           />
-          <Text style={styles.percentText}>
-            {Math.abs(props.data[props.num].percent)}
-          </Text>
+          <Text style={styles.percentText}>{Math.abs(co2percent)}</Text>
         </View>
         <Text style={styles.percentText}>
-          CO2 : {props.data[props.num].co2}
+          CO2 : {(props.toDayCO2 / 1000).toFixed(2)}t
         </Text>
       </View>
       <View style={styles.TextContainer}>
+        <View style={{ flexDirection: "row" }}>
+          <Text style={styles.informationText}>From </Text>
+          <Text style={[styles.informationText,{color:"#000"}]}>
+            {ysday.latitude.toFixed(2)}°/{ysday.longitude.toFixed(2)}°
+          </Text>
+          <Text style={styles.informationText}> to </Text>
+          <Text style={[styles.informationText,{color:"#000"}]}>
+            {today.latitude.toFixed(2)}°/{today.longitude.toFixed(2)}°
+          </Text>
+        </View>
         <Text style={styles.informationText}>
-          From {ysday.latitude.toFixed(2)}°/{ysday.longitude.toFixed(2)}° to {today.latitude.toFixed(2)}°/{today.longitude.toFixed(2)}°
+          Max PPM : {Math.max(...props.todayRPM).toFixed(4)}
         </Text>
-        <Text style={styles.informationText}>Max PPM : {Math.max(...props.data[props.num].rpm)} </Text>
-        <Text style={styles.informationText}>Min PRM : {Math.min(...props.data[props.num].rpm)}</Text>
-        <Text style={styles.informationText}>Ave Wave Height(m) : {props.data[props.num].AWH}</Text>
-        <Text style={styles.informationText}>Max Wind (kts) : {props.data[props.num].wind}</Text>
-        <Text style={styles.informationText}>Ave Wind Temp : {props.data[props.num].AWT}°C</Text>
+        <Text style={styles.informationText}>
+          Min PRM : {Math.min(...props.todayRPM).toFixed(4)}
+        </Text>
+        <Text style={styles.informationText}>
+          Ave Wave Height(m) : {props.waveHeight}
+        </Text>
+        <Text style={styles.informationText}>
+          Max Wind (kts) : {props.windSpeed}
+        </Text>
+        <Text style={styles.informationText}>
+          Ave Wind Temp : {props.AWT}°C
+        </Text>
       </View>
     </View>
   );
 }
+export default DailyRecord;
 
 const styles = StyleSheet.create({
   TextContainer: {
@@ -76,7 +109,7 @@ const styles = StyleSheet.create({
 
   informationText: {
     marginTop: 5,
-    color: "#000",
+    color: "gray",
     fontSize: 9,
     fontWeight: "bold",
   },
@@ -96,15 +129,17 @@ const styles = StyleSheet.create({
   dateText: {
     color: "#fff",
     fontSize: 35,
-    fontWeight: "bold",
+    fontWeight: "400",
     marginLeft: 25,
   },
 
   percentText: {
     color: "#fff",
     fontSize: 15,
-    marginTop: 3,
+    marginTop: 2,
     marginLeft: "7%",
+    fontFamily: "Rubik_600SemiBold",
+    fontWeight: "bold",
   },
 
   DateContainer: {
@@ -125,5 +160,3 @@ const styles = StyleSheet.create({
     height: 15,
   },
 });
-
-export default DailyRecord;

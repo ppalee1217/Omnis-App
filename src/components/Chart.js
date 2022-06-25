@@ -44,7 +44,7 @@ function Chart(props) {
       verticalLinesThickness={1.5}
       verticalLineColor={"#balck"}
       hideDataPoints1={true}
-      isAnimated={true}
+      //isAnimated={true}
       // animateOnDataChange={true}
       scrollAnimation={true}
       scrollAnimationDuration={1000}

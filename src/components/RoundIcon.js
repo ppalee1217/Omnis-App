@@ -9,9 +9,6 @@ import {
 function RoundIcon(props) {
   
   let [fontsLoaded] = useFonts({
-    Rubik_500Medium,
-    Rubik_600SemiBold,
-    Orbitron_600SemiBold,
     "digital-7": require("../../assets/fonts/digital-7.ttf"),
   });
   let D ="D"
@@ -96,12 +93,14 @@ const styles = StyleSheet.create({
     color: "#354379",
     fontSize: 28,
     fontFamily: "Rubik_600SemiBold",
+    fontWeight: "bold",
   },
   courseNum2:{
     top: "5%",
     color: "#354379",
     fontSize: 18,
     fontFamily: "Rubik_600SemiBold",
+    fontWeight: "bold",
   },
   Arrow:{
     width: 25,
