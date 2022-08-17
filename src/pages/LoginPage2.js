@@ -1,5 +1,4 @@
 import {
-  Alert,
   Pressable,
   View,
   Image,
@@ -8,10 +7,21 @@ import {
   TextInput,
   KeyboardAvoidingView,
 } from "react-native";
-
+import Toast from 'react-native-toast-message'
 import React, { useState } from "react";
+import {
+  useFonts,
+  Rubik_600SemiBold,
+  Rubik_500Medium,
+
+} from "@expo-google-fonts/dev";
 
 function LoginPage2(props) {
+  let [fontsLoaded] = useFonts({
+    Rubik_600SemiBold,
+    Rubik_500Medium,
+  });
+
   const [imo, setImo] = useState("");
   const [password, setPassword] = useState("");
   const [imoInput, setImoInput] = useState("");
@@ -44,11 +54,12 @@ function LoginPage2(props) {
     if (imo == 9604081 || imo == 9832975)
       props.navigation.navigate("Home", { imo: imo });
     else {
-      Alert.alert("登入發生問題", "密碼錯誤或此船隻尚未註冊!", [
-        {
-          text: "我知道了!",
-        },
-      ]);
+      Toast.show({
+        //登入畫面
+        type: 'info',
+        text1: '登入發生問題',
+        text2: '密碼錯誤或此船隻尚未註冊!',
+      });
       setImoInput("");
       setImo("");
       setPasswordInput("");
@@ -103,6 +114,11 @@ function LoginPage2(props) {
           <Text style={styles.loginText}>確認</Text>
         </Pressable>
       </View>
+      <Toast
+        position='bottom'
+        bottomOffset={40}
+        visibilityTime={5000}
+      />
     </KeyboardAvoidingView>
   );
 }
@@ -189,5 +205,5 @@ const styles = StyleSheet.create({
     fontFamily: "Rubik_600SemiBold",
     fontSize: 18,
     color: "#fff",
-  },
+  }
 });

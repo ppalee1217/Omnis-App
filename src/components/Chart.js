@@ -1,19 +1,13 @@
 import React from "react";
 import { View, Text, ImageBackground, StyleSheet } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
-import {
-  useFonts,
-  Rubik_600SemiBold,
-  Rubik_500Medium,
-  Orbitron_600SemiBold,
-} from "@expo-google-fonts/dev";
 
 function Chart(props) {
-  //console.log(props)
-
+  console.log(props.data)
   return (
     <LineChart
       data={props.data}
+      //data2={props.data2 ? props.data2 : null}
       backgroundColor={"#fff"}
       curved={true}
       showVerticalLines={true}
@@ -26,7 +20,7 @@ function Chart(props) {
         fontFamily: "Rubik_600SemiBold",
       }}
       yAxisTextNumberOfLines={1}
-      yAxisLabelWidth={25}
+      yAxisLabelWidth={30}
       xAxisLabelWidth={0}
       spacing={40}
       color={props.color}
@@ -44,9 +38,8 @@ function Chart(props) {
       verticalLinesThickness={1.5}
       verticalLineColor={"#balck"}
       hideDataPoints1={true}
-      //isAnimated={true}
-      // animateOnDataChange={true}
-      scrollAnimation={true}
+      isAnimated={false}
+      // scrollAnimation={true}
       scrollAnimationDuration={1000}
       pointerConfig={{
         activatePointersOnLongPress: true,

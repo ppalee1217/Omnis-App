@@ -28,7 +28,6 @@ import {
 // };
 
 function DailyRecord(props) {
-  console.log(props)
   let [fontsLoaded] = useFonts({
     "digital-7": require("../../assets/fonts/digital-7.ttf"),
   });
@@ -59,7 +58,7 @@ function DailyRecord(props) {
                 : require("../../res/images/down.png")
             }
           />
-          <Text style={styles.percentText}>{Math.abs(co2percent)}</Text>
+          <Text style={styles.percentText}>{Math.abs(co2percent).toFixed(3)}</Text>
         </View>
         <Text style={styles.percentText}>
           CO2 : {(props.toDayCO2 / 1000).toFixed(2)}t
